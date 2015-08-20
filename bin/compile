@@ -72,7 +72,7 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/app/opt/lib/pkgconfig
 
 # if package.json has contents, run dub build
 status=1
-if [ ! -s $BUILD_DIR/package.json ]; then
+if [ ! -s $BUILD_DIR/dub.json ]; then
   echo
   echo "!!! package.json was empty" | indent
   status=1
