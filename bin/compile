@@ -10,6 +10,11 @@ TOOL_DIR=$BUILD_DIR/toolchain
 ARCHIVE_DIR=$CACHE_DIR/archives
 mkdir -p "$TOOL_DIR" "$ARCHIVE_DIR"
 
+echo "--> BUILD_DIR = $BUILD_DIR"
+echo "--> CACHE_DIR = $CACHE_DIR"
+echo "--> TOOL_DIR = $TOOL_DIR"
+echo "--> ARCHIVE_DIR = $ARCHIVE_DIR"
+
 DMD_ARCHIVE_PATH=http://downloads.dlang.org/releases/2015
 DMD_ARCHIVE=dmd.2.068.0
 DUB_ARCHIVE_PATH=http://code.dlang.org/files
@@ -19,96 +24,3 @@ indent() {
   sed -u 's/^/       /'
 }
 
-# download latest archives
-cd $ARCHIVE_DIR
-if [ ! -f $ARCHIVE_DIR/$DMD_ARCHIVE.zip ]; then
-    echo
-    echo "-----> Downloading DMD"
-    rm -f dmd*.zip
-    curl $DMD_ARCHIVE_PATH/$DMD_ARCHIVE.zip -o $DMD_ARCHIVE.zip
-fi | indent
-
-if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
-    echo
-    echo "-----> Downloading dub package manager"
-    rm -f dub*.tar.gz
-    curl $DUB_ARCHIVE_PATH/$DUB_ARCHIVE.tar.gz -o $DUB_ARCHIVE.tar.gz
-fi | indent
-
-# initialise toolchain
-export PATH=$TOOL_DIR/dmd2/linux/bin64:$TOOL_DIR/$DUB_ARCHIVE/bin:$BUILDPACK_DIR:$PATH
-echo
-echo "-----> Setting PATH: $PATH"
-echo
-echo "-----> Initializing toolchain"
-cd $TOOL_DIR
-
-# expand DMD
-7za x $ARCHIVE_DIR/$DMD_ARCHIVE.zip > /dev/null
-
-# expand dub
-7za x $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz > /dev/null
-# git clone https://github.com/pussinboots/dub
-# cd dub
-# ./build.sh | indent
-# cd ..
-export PATH=$PATH:/$TOOL_DIR
-message `ls /app/tmp/cache`
-
-
-DUB_BIN=`ls -lh /app/tmp/cache/dub`
-message "-----> DUB package manager cmd found at $DUB_BIN"
-
-echo
-echo "-----> Building app"
-
-# link the dub cache to the cache folder
-mkdir -p $CACHE_DIR/.dub
-
-if [ ! -e $BUILD_DIR/.dub ]; then
-    ln -s $CACHE_DIR/.dub $BUILD_DIR/.dub
-fi
-
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/app/opt/lib/pkgconfig
-
-# if package.json has contents, run dub build
-status=1
-if [ ! -s $BUILD_DIR/dub.json ]; then
-  echo
-  echo "!!! package.json was empty" | indent
-  status=1
-else
-  # pre-build hook
-  cd $BUILD_DIR
-  if [ -f dub-prebuild ]; then
-    echo
-    echo "Running dub-prebuild…" | indent
-    ./dub-prebuild "$BUILD_DIR" "$CACHE_DIR" | indent
-    #chmod 755 /app/opt/lib/pkgconfig
-  fi
-
-  echo
-  echo "Running dub build…" | indent
-  if $DUB_BIN build; then
-    echo
-    echo "Build was successful" | indent
-    status=0
-  else
-    echo
-    echo "!!! Build failed" | indent
-    status=1
-  fi
-fi
-
-# post-build hook
-cd $BUILD_DIR
-if [ -f dub-postbuild ]; then
-    echo
-    echo "Running dub-postbuild…" | indent
-    ./dub-postbuild "$BUILD_DIR" "$CACHE_DIR" | indent
-fi
-
-# clean up any remaining sources
-rm -rf "$TOOL_DIR" source src views
-
-exit $status
