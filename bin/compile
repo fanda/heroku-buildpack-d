@@ -33,9 +33,6 @@ if [ ! -f $ARCHIVE_DIR/$DMD_ARCHIVE.zip ]; then
     curl $DMD_ARCHIVE_PATH/$DMD_ARCHIVE.zip -o $DMD_ARCHIVE.zip
 fi | indent
 
-# expand DMD
-7za x $ARCHIVE_DIR/$DMD_ARCHIVE.zip > /dev/null
-
 # download latest archives DUB
 if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
     echo
@@ -44,16 +41,74 @@ if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
     curl $DUB_ARCHIVE_PATH/$DUB_ARCHIVE.tar.gz -o $DUB_ARCHIVE.tar.gz
 fi | indent
 
+cd $TOOL_DIR
+# expand DMD
+unzip $ARCHIVE_DIR/$DMD_ARCHIVE.zip > /dev/null
+
 # expand dub
-7za x $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz > /dev/null
+tar xzvf $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz > /dev/null
 
 # initialise toolchain
-export PATH=$TOOL_DIR/dmd2/linux/bin64:$TOOL_DIR/$DUB_ARCHIVE/bin:$BUILDPACK_DIR:$PATH
+export PATH=$TOOL_DIR/dmd2/linux/bin64:$TOOL_DIR:$BUILDPACK_DIR:$PATH
 echo
 echo "-----> Setting PATH: $PATH"
 echo
 echo "-----> Initializing toolchain"
-cd $TOOL_DIR
 
 echo `ls $TOOL_DIR`
 echo `ls $ARCHIVE_DIR`
+
+echo
+echo "-----> Building app"
+
+# link the dub cache to the cache folder
+mkdir -p $CACHE_DIR/.dub
+
+if [ ! -e $BUILD_DIR/.dub ]; then
+    ln -s $CACHE_DIR/.dub $BUILD_DIR/.dub
+fi
+
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/app/opt/lib/pkgconfig
+
+# if package.json has contents, run dub build
+status=1
+if [ ! -s $BUILD_DIR/dub.json ]; then
+  echo
+  echo "!!! package.json was empty" | indent
+  status=1
+else
+  # pre-build hook
+  cd $BUILD_DIR
+  if [ -f dub-prebuild ]; then
+    echo
+    echo "Running dub-prebuild…" | indent
+    ./dub-prebuild "$BUILD_DIR" "$CACHE_DIR" | indent
+    #chmod 755 /app/opt/lib/pkgconfig
+  fi
+
+  echo
+  echo "Running dub build…" | indent
+  if $DUB_BIN build; then
+    echo
+    echo "Build was successful" | indent
+    status=0
+  else
+    echo
+    echo "!!! Build failed" | indent
+    status=1
+  fi
+fi
+
+# post-build hook
+cd $BUILD_DIR
+if [ -f dub-postbuild ]; then
+    echo
+    echo "Running dub-postbuild…" | indent
+    ./dub-postbuild "$BUILD_DIR" "$CACHE_DIR" | indent
+fi
+
+# clean up any remaining sources
+rm -rf "$TOOL_DIR" source src views
+
+exit $status
+
