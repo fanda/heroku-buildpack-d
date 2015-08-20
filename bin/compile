@@ -52,6 +52,7 @@ cd $TOOL_DIR
 7za x $ARCHIVE_DIR/$DMD_ARCHIVE.zip > /dev/null
 
 # expand dub
+7za x $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz > /dev/null
 # git clone https://github.com/pussinboots/dub
 # cd dub
 # ./build.sh | indent
