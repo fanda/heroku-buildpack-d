@@ -36,7 +36,7 @@ if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
 fi | indent
 
 
-DUB_BIN=`ls -lh /app/tmp/cache/dub/bin/dub`
+DUB_BIN=`ls -lh /app/tmp/cache/dub`
 message "-----> DUB package manager cmd found at $DUB_BIN"
 
 
@@ -89,7 +89,7 @@ else
 
   echo
   echo "Running dub build…" | indent
-  if dub build; then
+  if $DUB_BIN build; then
     echo
     echo "Build was successful" | indent
     status=0
