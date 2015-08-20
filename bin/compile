@@ -35,11 +35,6 @@ if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
     curl $DUB_ARCHIVE_PATH/$DUB_ARCHIVE.tar.gz -o $DUB_ARCHIVE.tar.gz
 fi | indent
 
-
-DUB_BIN=`ls -lh /app/tmp/cache/dub`
-message "-----> DUB package manager cmd found at $DUB_BIN"
-
-
 # initialise toolchain
 export PATH=$TOOL_DIR/dmd2/linux/bin64:$TOOL_DIR/$DUB_ARCHIVE/bin:$BUILDPACK_DIR:$PATH
 echo
@@ -57,7 +52,9 @@ cd $TOOL_DIR
 # cd dub
 # ./build.sh | indent
 # cd ..
-export PATH=$PATH:/$TOOL_DIR/dub/bin/
+export PATH=$PATH:/$TOOL_DIR
+DUB_BIN=`ls -lh /app/tmp/cache/dub`
+message "-----> DUB package manager cmd found at $DUB_BIN"
 
 echo
 echo "-----> Building app"
