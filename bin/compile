@@ -88,7 +88,7 @@ else
 
   echo
   echo "Running dub build…" | indent
-  if $DUB_BIN build; then
+  if dub build; then
     echo
     echo "Build was successful" | indent
     status=0
