@@ -53,6 +53,9 @@ cd $TOOL_DIR
 # ./build.sh | indent
 # cd ..
 export PATH=$PATH:/$TOOL_DIR
+message `ls /app/tmp/cache`
+
+
 DUB_BIN=`ls -lh /app/tmp/cache/dub`
 message "-----> DUB package manager cmd found at $DUB_BIN"
 
