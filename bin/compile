@@ -10,10 +10,10 @@ TOOL_DIR=$BUILD_DIR/toolchain
 ARCHIVE_DIR=$CACHE_DIR/archives
 mkdir -p "$TOOL_DIR" "$ARCHIVE_DIR"
 
-echo "--> BUILD_DIR = $BUILD_DIR"
-echo "--> CACHE_DIR = $CACHE_DIR"
-echo "--> TOOL_DIR = $TOOL_DIR"
-echo "--> ARCHIVE_DIR = $ARCHIVE_DIR"
+echo "-----> BUILD_DIR = $BUILD_DIR"
+echo "-----> CACHE_DIR = $CACHE_DIR"
+echo "-----> TOOL_DIR = $TOOL_DIR"
+echo "-----> ARCHIVE_DIR = $ARCHIVE_DIR"
 
 DMD_ARCHIVE_PATH=http://downloads.dlang.org/releases/2015
 DMD_ARCHIVE=dmd.2.068.0
@@ -24,3 +24,36 @@ indent() {
   sed -u 's/^/       /'
 }
 
+# download latest archives DMD
+cd $ARCHIVE_DIR
+if [ ! -f $ARCHIVE_DIR/$DMD_ARCHIVE.zip ]; then
+    echo
+    echo "-----> Downloading DMD"
+    rm -f dmd*.zip
+    curl $DMD_ARCHIVE_PATH/$DMD_ARCHIVE.zip -o $DMD_ARCHIVE.zip
+fi | indent
+
+# expand DMD
+7za x $ARCHIVE_DIR/$DMD_ARCHIVE.zip > /dev/null
+
+# download latest archives DUB
+if [ ! -f $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz ]; then
+    echo
+    echo "-----> Downloading dub package manager"
+    rm -f dub*.tar.gz
+    curl $DUB_ARCHIVE_PATH/$DUB_ARCHIVE.tar.gz -o $DUB_ARCHIVE.tar.gz
+fi | indent
+
+# expand dub
+7za x $ARCHIVE_DIR/$DUB_ARCHIVE.tar.gz > /dev/null
+
+# initialise toolchain
+export PATH=$TOOL_DIR/dmd2/linux/bin64:$TOOL_DIR/$DUB_ARCHIVE/bin:$BUILDPACK_DIR:$PATH
+echo
+echo "-----> Setting PATH: $PATH"
+echo
+echo "-----> Initializing toolchain"
+cd $TOOL_DIR
+
+echo `ls $TOOL_DIR`
+echo `ls $ARCHIVE_DIR`
