@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
-echo $LD_LIBRARY_PATH 
+echo $LD_LIBRARY_PATH
 echo $LD_RUN_PATH
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/app/opt/lib

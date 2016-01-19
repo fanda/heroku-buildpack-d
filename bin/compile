@@ -16,9 +16,9 @@ echo "-----> TOOL_DIR = $TOOL_DIR"
 echo "-----> ARCHIVE_DIR = $ARCHIVE_DIR"
 
 DMD_ARCHIVE_PATH=http://downloads.dlang.org/releases/2015
-DMD_ARCHIVE=dmd.2.068.0
+DMD_ARCHIVE=dmd.2.069.0
 DUB_ARCHIVE_PATH=http://code.dlang.org/files
-DUB_ARCHIVE=dub-0.9.23-linux-x86_64
+DUB_ARCHIVE=dub-0.9.24-linux-x86_64
 
 indent() {
   sed -u 's/^/       /'
