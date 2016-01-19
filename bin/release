@@ -7,8 +7,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/app/opt/lib
 export LD_RUN_PATH=$LD_RUN_PATH:/app/opt/lib
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/app/opt/lib/pkgconfig
 
-cat <<EOF
----
+echo "---
 addons:
 default_process_types:
-EOF
+"
