@@ -9,4 +9,6 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/app/opt/lib/pkgconfig
 
 cat <<EOF
 ---
+addons:
+default_process_types:
 EOF
